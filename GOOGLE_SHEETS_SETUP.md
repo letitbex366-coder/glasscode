@@ -2,10 +2,15 @@
 
 This guide will help you set up the Google Sheets integration for the Contact Us form.
 
-## Step 1: Open Your Google Sheet
+## Step 1: Create Your Google Sheet
 
-1. Open your Google Sheet: https://docs.google.com/spreadsheets/d/12Ky6p4NTfZRra0HcLH3pCLjBkusXPHnLIEmM2kbUW8M/edit
-2. Make sure you have columns: `Name`, `User_Email`, `User_type`
+1. Create a new Google Sheet or open an existing one
+2. Set up the following column headers in Row 1:
+   - **Column A**: `Name`
+   - **Column B**: `Email`
+   - **Column C**: `Project_Type`
+   - **Column D**: `About_Project`
+   - **Column E**: `Timestamp` (optional)
 
 ## Step 2: Create Google Apps Script
 
@@ -25,10 +30,12 @@ function doPost(e) {
     const timestamp = new Date();
     
     // Append a new row with the data
+    // Order: Name, Email, Project_Type, About_Project, Timestamp
     sheet.appendRow([
-      data.name,
-      data.email,
-      data.userType,
+      data.name || '',
+      data.email || '',
+      data.projectType || '',
+      data.aboutProject || '',
       timestamp
     ]);
     
@@ -78,16 +85,23 @@ GOOGLE_SHEETS_SCRIPT_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 
 ## Step 5: Test the Integration
 
-1. Click "Join Waitlist" button on your site (navigates to /contactus)
-2. Fill out the Contact Us form
-3. Check your Google Sheet - a new row should appear!
+1. Go to the Contact Us page on your site (`/contactus`)
+2. Fill out the Contact Us form:
+   - Enter your name
+   - Enter your email
+   - Select project type (Website for your business, Web app, AI Automation projects, or Other)
+   - Describe your project
+3. Submit the form
+4. Check your Google Sheet - a new row should appear with all the data!
 
-## Optional: Add a Timestamp Column
+## Column Structure
 
-If you want to track when submissions come in:
-
-1. Add a column header "Timestamp" in your Google Sheet (column D)
-2. The script above already includes timestamp tracking!
+Your Google Sheet should have these columns:
+- **Name**: User's full name
+- **Email**: User's email address
+- **Project_Type**: Selected project type (Website for your business, Web app, AI Automation projects, or Other)
+- **About_Project**: Description of the project
+- **Timestamp**: Automatically added when the form is submitted
 
 ## Troubleshooting
 

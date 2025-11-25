@@ -16,10 +16,10 @@ export async function POST(request: Request) {
   // Anyone can submit to the Contact Us form
   
   try {
-    const { name, email, projectType, budgetRange, message } = await request.json();
+    const { name, email, projectType, aboutProject } = await request.json();
 
     // Validate input only - no login validation
-    if (!name || !email || !projectType || !budgetRange || !message) {
+    if (!name || !email || !projectType || !aboutProject) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -28,23 +28,13 @@ export async function POST(request: Request) {
 
     // Map projectType to readable format
     const projectTypeMap: Record<string, string> = {
-      'website': 'Website',
-      'web-app': 'Web App',
-      'ai-automation': 'AI Automation',
+      'website-for-business': 'Website for your business',
+      'web-app': 'Web app',
+      'ai-automation': 'AI Automation projects',
       'other': 'Other',
     };
 
-    // Map budgetRange to readable format
-    const budgetRangeMap: Record<string, string> = {
-      'under-10k': 'Under $10,000',
-      '10k-25k': '$10,000 - $25,000',
-      '25k-50k': '$25,000 - $50,000',
-      '50k-100k': '$50,000 - $100,000',
-      '100k-plus': '$100,000+',
-    };
-
     const mappedProjectType = projectTypeMap[projectType] || projectType;
-    const mappedBudgetRange = budgetRangeMap[budgetRange] || budgetRange;
 
     // Google Sheets Web App URL (you'll need to deploy a Google Apps Script)
     const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SHEETS_SCRIPT_URL || '';
@@ -54,7 +44,7 @@ export async function POST(request: Request) {
       console.log('Environment variable GOOGLE_SHEETS_SCRIPT_URL is missing');
       // Still return success to the user to avoid breaking the flow
       // But log the data for debugging
-      console.log('Contact form submission:', { name, email, projectType: mappedProjectType, budgetRange: mappedBudgetRange, message });
+      console.log('Contact form submission:', { name, email, projectType: mappedProjectType, aboutProject });
       return NextResponse.json({ 
         success: true,
         message: 'Submitted (Google Sheets not configured)'
@@ -81,8 +71,7 @@ export async function POST(request: Request) {
         name,
         email,
         projectType: mappedProjectType,
-        budgetRange: mappedBudgetRange,
-        message,
+        aboutProject,
       }),
     });
 
