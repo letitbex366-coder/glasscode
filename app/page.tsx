@@ -606,6 +606,19 @@ export default function LandingPage() {
             >
               Our Services
             </motion.button>
+            <Link
+              href="/portfolio"
+              onClick={() => setMobileMenuOpen(false)}
+              className={cx(
+                "px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-lg text-left",
+                "text-black/70 hover:text-black hover:bg-black/5",
+                "dark:text-[#cbd5e1] dark:hover:text-[#e5e7eb]",
+                "dark:hover:bg-[rgba(255,255,255,0.12)]",
+                "dark:hover:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+              )}
+            >
+              Portfolio
+            </Link>
             {/* Commented out Login - replaced with Waitlist */}
             {/* <Link
               href="/sign-in"
