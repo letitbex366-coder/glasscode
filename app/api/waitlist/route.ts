@@ -16,10 +16,10 @@ export async function POST(request: Request) {
   // Anyone can submit to the Contact Us form
   
   try {
-    const { name, email, projectType, aboutProject } = await request.json();
+    const { name, email, mobileNumber, projectType, aboutProject } = await request.json();
 
     // Validate input only - no login validation
-    if (!name || !email || !projectType || !aboutProject) {
+    if (!name || !email || !mobileNumber || !projectType || !aboutProject) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       console.log('Environment variable GOOGLE_SHEETS_SCRIPT_URL is missing');
       // Still return success to the user to avoid breaking the flow
       // But log the data for debugging
-      console.log('Contact form submission:', { name, email, projectType: mappedProjectType, aboutProject });
+      console.log('Contact form submission:', { name, email, mobileNumber, projectType: mappedProjectType, aboutProject });
       return NextResponse.json({ 
         success: true,
         message: 'Submitted (Google Sheets not configured)'
@@ -62,17 +62,23 @@ export async function POST(request: Request) {
     }
 
     // Send data to Google Sheets via the deployed script
+    const payload = {
+      name,
+      email,
+      mobileNumber,
+      projectType: mappedProjectType,
+      aboutProject,
+    };
+    
+    // Log the payload for debugging
+    console.log('Sending to Google Sheets:', payload);
+    
     const response = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name,
-        email,
-        projectType: mappedProjectType,
-        aboutProject,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
