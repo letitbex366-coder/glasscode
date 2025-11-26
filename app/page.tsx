@@ -1,14 +1,21 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, lazy, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { PortfolioShowcaseInLaptop } from '@/components/marketing/portfolio-showcase';
-import { QuoteCarousel } from '@/components/marketing/quote-carousel';
-import Background3D from '@/components/effects/Background3D';
-import ChatBackground3D from '@/components/effects/ChatBackground3D';
-import EnergyWave from '@/components/effects/EnergyWave';
 import { LaptopMockup } from '@/components/ui/laptop-mockup';
-import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
+
+// Lazy load QuoteCarousel as it's below the fold
+const QuoteCarousel = lazy(() => import('@/components/marketing/quote-carousel').then(mod => ({ default: mod.QuoteCarousel })));
+
+// Lazy load heavy 3D components for better performance
+const Background3D = lazy(() => import('@/components/effects/Background3D'));
+const ChatBackground3D = lazy(() => import('@/components/effects/ChatBackground3D'));
+const EnergyWave = lazy(() => import('@/components/effects/EnergyWave'));
+const BackgroundGradientAnimation = lazy(() => import('@/components/ui/background-gradient-animation').then(mod => ({ default: mod.BackgroundGradientAnimation })));
+
+// Loading fallback for lazy components
+const LazyLoader = () => null;
 
 /* ====================== Utilities ====================== */
 const cx = (...cls: Array<string | false | null | undefined>) => cls.filter(Boolean).join(' ');
@@ -109,15 +116,15 @@ function Card3D({
     <motion.div
       initial={{ opacity: 0, y: 30, rotateX: 10 }}
       whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      viewport={{ once: true, margin: "0px" }}
+      transition={{ duration: 0.4, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
       whileHover={{ 
-        y: -6, 
+        y: -4, 
         scale: 1.01,
-        transition: { duration: 0.3 }
+        transition: { duration: 0.2 }
       }}
       className={cx(
-        'relative overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300',
+        'relative overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-200',
         'border-black/10 bg-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)]',
         'dark:border-white/10 dark:bg-white/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
         'transform-gpu',
@@ -160,7 +167,7 @@ function TypingText({
   const [isTyping, setIsTyping] = useState(false)
   const [animationKey, setAnimationKey] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: false, margin: "-100px" })
+  const isInView = useInView(ref, { once: true, margin: "50px" })
 
   useEffect(() => {
     // Reset animation when component comes into view
@@ -255,27 +262,8 @@ function TypingText({
 }
 
 /* ====================== Page ====================== */
-export default function LandingPage() {
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.98]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Detect scroll position for header background
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    
-    handleScroll(); // Check initial position
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-
-
-  const featureCards = [
+// Move featureCards outside component for better performance
+const featureCards = [
     {
       title: 'MERN Stack Experts',
       description: 'Custom dashboards, admin panels, workflow systems, portals, and SaaS products built with modern MERN stack.',
@@ -331,6 +319,42 @@ export default function LandingPage() {
       ),
     },
   ];
+
+export default function LandingPage() {
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.98]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Detect scroll position for header background - Optimized with throttling
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    handleScroll(); // Check initial position
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Memoize quotes to prevent re-computation on every render
+  const quotes = useMemo(() => featureCards.map((card) => ({
+    headline: card.title,
+    body: card.description,
+    sourceName: '',
+    sourceMeta: '',
+    logos: [],
+    glowClass: 'bg-white/10',
+    iconComponent: card.icon,
+  })), []);
 
   const quoteHighlights = [
     {
@@ -391,22 +415,24 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <BackgroundGradientAnimation
-        containerClassName={cx(
-          "absolute inset-0 -z-30",
-          "[--gradient-background-start:rgba(238,242,255,1)]",
-          "[--gradient-background-end:rgba(199,210,254,1)]",
-          isDark && "[--gradient-background-start:rgba(8,10,20,1)] [--gradient-background-end:rgba(26,14,61,1)]"
-        )}
-        className="hidden"
-        firstColor={isDark ? "129, 140, 248" : "59, 130, 246"}
-        secondColor={isDark ? "88, 28, 135" : "99, 102, 241"}
-        thirdColor={isDark ? "14, 165, 233" : "125, 211, 252"}
-        fourthColor={isDark ? "45, 55, 72" : "180, 190, 255"}
-        fifthColor={isDark ? "80, 63, 205" : "248, 250, 252"}
-        pointerColor={isDark ? "129, 140, 248" : "59, 130, 246"}
-        blendingValue="screen"
-      />
+      <Suspense fallback={null}>
+        <BackgroundGradientAnimation
+          containerClassName={cx(
+            "absolute inset-0 -z-30",
+            "[--gradient-background-start:rgba(238,242,255,1)]",
+            "[--gradient-background-end:rgba(199,210,254,1)]",
+            isDark && "[--gradient-background-start:rgba(8,10,20,1)] [--gradient-background-end:rgba(26,14,61,1)]"
+          )}
+          className="hidden"
+          firstColor={isDark ? "129, 140, 248" : "59, 130, 246"}
+          secondColor={isDark ? "88, 28, 135" : "99, 102, 241"}
+          thirdColor={isDark ? "14, 165, 233" : "125, 211, 252"}
+          fourthColor={isDark ? "45, 55, 72" : "180, 190, 255"}
+          fifthColor={isDark ? "80, 63, 205" : "248, 250, 252"}
+          pointerColor={isDark ? "129, 140, 248" : "59, 130, 246"}
+          blendingValue="screen"
+        />
+      </Suspense>
 
       <main
         className={cx(
@@ -416,7 +442,9 @@ export default function LandingPage() {
         )}
       >
       {/* 3D Background */}
-      <Background3D isDark={isDark} />
+        <Suspense fallback={null}>
+          <Background3D isDark={isDark} />
+        </Suspense>
  
       {/* Dotted overlay accents */}
       <div className="dot-mask hidden lg:block -z-10" aria-hidden />
@@ -442,7 +470,7 @@ export default function LandingPage() {
           {/* Left: Logo */}
           <motion.div 
             className="flex items-center gap-2 sm:gap-2.5 min-w-[100px] sm:min-w-[140px]"
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.01 }}
           >
             <div className="relative h-7 w-7 sm:h-8 sm:w-8 rounded-lg overflow-hidden bg-white dark:bg-black shadow-md">
               <img 
@@ -670,7 +698,9 @@ export default function LandingPage() {
         <div className="relative -mx-6 lg:-mx-8">
           {/* Energy Wave Background */}
           <div className="absolute inset-0 overflow-hidden rounded-3xl">
-            <EnergyWave isDark={isDark} />
+            <Suspense fallback={null}>
+              <EnergyWave isDark={isDark} />
+            </Suspense>
           </div>
           
           {/* Brighter overlay for better visibility */}
@@ -733,12 +763,12 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.8, 
-                delay: 0.4,
+                duration: 0.5, 
+                delay: 0.1,
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "0px" }}
               className={cx(
                 "text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight",
                 "text-black dark:text-transparent",
@@ -754,12 +784,12 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 30, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.7, 
-                delay: 0.6,
+                duration: 0.4, 
+                delay: 0.2,
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "0px" }}
               className={cx(
                 "text-base sm:text-lg max-w-2xl leading-relaxed",
                 "text-black/80 dark:text-white/80",
@@ -774,12 +804,12 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.7, 
-                delay: 0.8,
+                duration: 0.4, 
+                delay: 0.3,
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "0px" }}
               className={cx(
                 "text-sm sm:text-base max-w-2xl leading-relaxed",
                 "text-black/70 dark:text-white/70",
@@ -794,7 +824,7 @@ export default function LandingPage() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.8 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
               className="flex items-center justify-center gap-4 mt-6 flex-wrap"
             >
               <Link href="/contactus">
@@ -863,7 +893,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
                 className="mx-auto max-w-4xl text-center space-y-4 mb-12"
               >
                 <motion.span
@@ -1010,12 +1040,12 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.8, 
-                delay: 0.4,
+                duration: 0.5, 
+                delay: 0.2,
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "0px" }}
               className={cx(
                 "text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight",
                 "text-black dark:text-transparent",
@@ -1030,15 +1060,9 @@ export default function LandingPage() {
               We combine cutting-edge MERN stack expertise with AI automation to deliver scalable, secure, and intelligent solutions that drive business growth.
             </p>
           </motion.div>
-          <QuoteCarousel quotes={featureCards.map((card) => ({
-            headline: card.title,
-            body: card.description,
-            sourceName: '',
-            sourceMeta: '',
-            logos: [],
-            glowClass: 'bg-white/10',
-            iconComponent: card.icon,
-          }))} />
+          <Suspense fallback={null}>
+            <QuoteCarousel quotes={quotes} />
+          </Suspense>
           </section>
         </div>
 
@@ -1106,8 +1130,8 @@ export default function LandingPage() {
               )} style={{ letterSpacing: '-0.02em' }}>
                 <TypingText 
                   text="View Our Work"
-                  typingSpeed={90}
-                  delay={500}
+                  typingSpeed={80}
+                  delay={300}
                   showCaret={true}
                   caretBlinkSpeed={530}
                   hideCaretAfter={true}
@@ -1122,7 +1146,7 @@ export default function LandingPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.9 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
                 className="mt-6"
               >
                 <Link href="/portfolio">
@@ -1181,7 +1205,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
                 className="mx-auto max-w-4xl text-center space-y-4 mb-12"
               >
                 <motion.span
@@ -1242,8 +1266,8 @@ export default function LandingPage() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -6, scale: 1.02 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ y: -4, scale: 1.01 }}
                     className={cx(
                       "relative p-6 rounded-2xl border backdrop-blur-xl overflow-hidden",
                       "border-white/25 bg-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)]",
@@ -1283,7 +1307,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
                 className="mx-auto max-w-2xl text-center space-y-4"
               >
                 {/* About Badge */}
@@ -1340,7 +1364,7 @@ export default function LandingPage() {
                     ease: [0.25, 0.46, 0.45, 0.94]
                   }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ once: true, margin: "0px" }}
                   className={cx(
                     "text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight",
                     "text-black dark:text-white",
@@ -1394,7 +1418,7 @@ export default function LandingPage() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
                     className="space-y-2"
                   >
                     <h3 className="text-xl font-semibold text-black dark:text-white mb-2">Vision</h3>
@@ -1449,5 +1473,5 @@ export default function LandingPage() {
       </div>
     </main>
   </div>
-);
+  )
 }

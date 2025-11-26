@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 
@@ -174,9 +174,9 @@ function WebsiteDemo({ demo }: { demo: typeof demos[0] }) {
       {/* Content - Responsive Image Display */}
       <div className="flex-1 overflow-hidden relative bg-gray-50 dark:bg-gray-950">
         {demo.image ? (
-          <div className="relative h-full w-full flex items-center justify-center">
+          <div className="relative h-full w-full flex items-center justify-center p-2">
             {/* Image with proper responsive handling - Complete image visible in landscape */}
-            <div className="relative w-full h-full bg-gray-100 dark:bg-gray-900">
+            <div className="relative w-full h-full bg-gray-100 dark:bg-gray-900 rounded-sm">
               <Image
                 src={demo.image}
                 alt={demo.title}
@@ -184,7 +184,8 @@ function WebsiteDemo({ demo }: { demo: typeof demos[0] }) {
                 className="object-contain"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                 priority={false}
-                quality={90}
+                quality={85}
+                loading="lazy"
                 style={{ 
                   objectPosition: 'center',
                   width: '100%',
@@ -243,7 +244,7 @@ function WebsiteDemo({ demo }: { demo: typeof demos[0] }) {
   )
 }
 
-export function PortfolioShowcaseInLaptop() {
+export const PortfolioShowcaseInLaptop = memo(function PortfolioShowcaseInLaptop() {
   const [activeDemo, setActiveDemo] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
@@ -305,7 +306,7 @@ export function PortfolioShowcaseInLaptop() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="absolute inset-0"
           >
             {currentDemo.type === 'chatbot' ? (
@@ -335,5 +336,5 @@ export function PortfolioShowcaseInLaptop() {
       </div>
     </div>
   )
-}
+})
 

@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  //  title: 'Glasscode Innovations',
-  title: 'learning',
+   title: 'Glasscode Innovations',
+  // title: 'learning',
   description: 'Build Modern Web Apps & AI Automation That Scale Your Business. We create fast, secure, and intelligent digital solutions using MERN Stack, AI Agents, and smart automation systems.',
 };
 

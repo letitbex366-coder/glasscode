@@ -128,14 +128,15 @@ export default function Background3D({ isDark = false }: { isDark?: boolean }) {
       <Canvas 
         camera={{ position: [0, 0, 30], fov: 75 }}
         gl={{ antialias: true, alpha: true }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
         performance={{ min: 0.5 }}
+        frameloop="demand"
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={0.4} />
         <pointLight position={[-10, -10, -10]} intensity={0.2} />
         <CameraController />
-        <FloatingParticles count={700} isDark={isDark} />
+        <FloatingParticles count={300} isDark={isDark} />
         <FloatingSpheres isDark={isDark} />
       </Canvas>
     </div>
