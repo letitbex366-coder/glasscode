@@ -19,6 +19,7 @@ const projects = {
     techStack: ['React', 'Node.js', 'REST API', 'MongoDB', 'Express'],
     image: '/images/wyn.png',
     image2: '/images/wynn1.png',
+    image3: '/images/wynn3.png',
     liveUrl: 'https://wynngrid.netlify.app/',
     description: 'A platform that connects homeowners with verified architects and interior designers, making home renovation and construction simpler and more efficient.',
     challenge: 'Ensuring users quickly find relevant professionals based on their needs, budget, and location.',
@@ -48,8 +49,8 @@ const projects = {
     tagline: 'AI-powered career coaching platform',
     category: 'AI SaaS Platform',
     techStack: ['React 19', 'Next.js 15', 'Tailwind CSS', 'Prisma', 'Gemini API', 'Clerk', 'NeonDB', 'Inngest'],
-    image: '/images/AI 2.png',
-    image2: '/images/AI carrer coach.png',
+    image: '/images/AI carrer coach.png',
+    image2: '/images/AI 2.png',
     liveUrl: 'https://ai-career-coach-lake.vercel.app/',
     description: 'A full-stack AI-powered career coaching platform that helps users generate ATS-friendly resumes, personalized cover letters, and offers role-specific mock interviews with instant feedback.',
     challenge: 'Integrating advanced AI into real-world applications while maintaining user-friendly experience and scalability.',
@@ -82,8 +83,8 @@ const projects = {
     tagline: 'Secure litigation management for government departments',
     category: 'Enterprise System',
     techStack: ['React', 'Node.js', 'Express', 'MongoDB', 'JWT', 'Vite', 'Redux Toolkit', 'SMTP'],
-    image: '/images/LMS.png',
-    image2: '/images/lms2.png',
+    image: '/images/lms2.png',
+    image2: '/images/LMS.png',
     liveUrl: null,
     description: 'A highly secure, role-based web application designed to manage case intake, assignment, tracking, and audit for government/legal departments.',
     challenge: 'Replacing manual case tracking with a centralized, auditable system while ensuring strict security and role-based access control.',
@@ -510,6 +511,27 @@ export default function CaseStudyPage() {
               )}>
                 Results & Impact
               </h2>
+              {'image3' in project && project.image3 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="mb-8"
+                >
+                  <div className={cx(
+                    "relative rounded-2xl overflow-hidden border aspect-video",
+                    "border-white/20 bg-white/10 backdrop-blur-sm"
+                  )}>
+                    <Image
+                      src={project.image3 as string}
+                      alt={`${project.name} - Results View`}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </motion.div>
+              )}
               <div className="grid md:grid-cols-2 gap-6">
                 {project.results.map((result, index) => (
                   <motion.div
