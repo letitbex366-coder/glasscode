@@ -59,8 +59,8 @@ export function LaptopMockup({ children }: LaptopMockupProps) {
                 <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-sm"></div>
               </div>
               
-              {/* Content Area - Smaller height */}
-              <div className="h-[400px] md:h-[450px] overflow-hidden">
+              {/* Content Area - Professional height for better image display */}
+              <div className="h-[420px] md:h-[480px] lg:h-[500px] overflow-hidden">
                 {children}
               </div>
             </div>

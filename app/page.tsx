@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { MockChatShowcaseInLaptop } from '@/components/marketing/mock-chat-showcase';
+import { PortfolioShowcaseInLaptop } from '@/components/marketing/portfolio-showcase';
 import { QuoteCarousel } from '@/components/marketing/quote-carousel';
 import Background3D from '@/components/effects/Background3D';
 import ChatBackground3D from '@/components/effects/ChatBackground3D';
@@ -218,26 +218,38 @@ function TypingText({
       <span className="inline-block" style={{ minHeight: '1em' }}>
         {displayedText}
       </span>
-      {showCaret && showCaretState && (
-        <motion.span
-          key={`caret-${animationKey}`}
-          className="inline-block align-middle bg-current"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [1, 1, 0, 0] }}
-          transition={{
-            duration: caretBlinkSpeed / 1000,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{ 
-            width: '2px',
-            height: '1.1em',
-            marginLeft: '4px',
-            verticalAlign: 'middle',
-            display: 'inline-block'
-          }}
-        />
-      )}
+      <span 
+        className="inline-block align-middle"
+        style={{ 
+          width: showCaret && showCaretState ? '2px' : '2px',
+          height: '1.1em',
+          marginLeft: '4px',
+          verticalAlign: 'middle',
+          display: 'inline-block',
+          opacity: showCaret && showCaretState ? 1 : 0,
+          transition: 'opacity 0.2s ease-in-out'
+        }}
+      >
+        {showCaret && showCaretState && (
+          <motion.span
+            key={`caret-${animationKey}`}
+            className="inline-block align-middle bg-current"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [1, 1, 0, 0] }}
+            transition={{
+              duration: caretBlinkSpeed / 1000,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{ 
+              width: '2px',
+              height: '1.1em',
+              verticalAlign: 'middle',
+              display: 'inline-block'
+            }}
+          />
+        )}
+      </span>
     </span>
   )
 }
@@ -653,7 +665,7 @@ export default function LandingPage() {
       </motion.header>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 pb-20 pt-28 lg:px-8">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 pb-8 pt-28 lg:px-8">
         {/* Hero with Energy Wave Background */}
         <div className="relative -mx-6 lg:-mx-8">
           {/* Energy Wave Background */}
@@ -778,16 +790,51 @@ export default function LandingPage() {
               We create fast, secure, and intelligent digital solutions using MERN Stack, AI Agents, and smart automation systems.
             </motion.p>
             
-            {/* CTA Button */}
+            {/* CTA Buttons */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.8 }}
-              className="flex items-center justify-center mt-6"
+              className="flex items-center justify-center gap-4 mt-6 flex-wrap"
             >
               <Link href="/contactus">
                 <motion.button
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cx(
+                    "group relative px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-bold transition-all duration-300 rounded-full inline-flex items-center gap-2",
+                    "bg-gradient-to-r from-indigo-500/40 to-purple-500/40 hover:from-indigo-500/50 hover:to-purple-500/50",
+                    "backdrop-blur-xl border-2 border-indigo-500/50 dark:border-indigo-400/60",
+                    "text-indigo-700 dark:text-indigo-200",
+                    "shadow-[0_8px_30px_rgba(99,102,241,0.4),0_0_40px_rgba(99,102,241,0.3)]",
+                    "dark:from-indigo-500/35 dark:to-purple-500/35 dark:hover:from-indigo-500/45 dark:hover:to-purple-500/45",
+                    "dark:shadow-[0_10px_40px_rgba(99,102,241,0.6),0_0_50px_rgba(99,102,241,0.4)]",
+                    "hover:shadow-[0_12px_40px_rgba(99,102,241,0.5),0_0_50px_rgba(99,102,241,0.4)]",
+                    "dark:hover:shadow-[0_14px_50px_rgba(99,102,241,0.7),0_0_60px_rgba(99,102,241,0.5)]",
+                    "transform cursor-pointer"
+                  )}
+                >
+                  <span>Get a Free Consultation</span>
+                  <motion.svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 4 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </motion.svg>
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    initial={false}
+                  />
+                </motion.button>
+              </Link>
+              <Link href="/portfolio">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className={cx(
                     "px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-300 rounded-full inline-block",
@@ -799,7 +846,7 @@ export default function LandingPage() {
                     "transform scale-105"
                   )}
                 >
-                  Get a Free Consultation
+                  See Our Work
                 </motion.button>
               </Link>
             </motion.div>
@@ -809,7 +856,7 @@ export default function LandingPage() {
         {/* Our Core Services Section */}
         <section id="what-we-build" className="relative scroll-mt-20 -mx-6 lg:-mx-8">
           <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6 dark:from-[rgba(20,25,50,0.85)] dark:via-[rgba(30,25,70,0.7)] dark:to-[rgba(10,12,32,0.85)]" />
+            <div className="absolute inset-0 bg-transparent" />
             
             <div className="relative z-10 px-6 py-12 lg:px-8 lg:py-16">
               <motion.div
@@ -887,11 +934,13 @@ export default function LandingPage() {
                       "hover:border-white/15 dark:hover:border-white/5"
                     )}
                   >
-                    <div className="text-3xl mb-3">{service.icon}</div>
-                    <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
+                    <div className="flex justify-center mb-4">
+                      <span className="text-5xl sm:text-6xl">{service.icon}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-black dark:text-white text-center">
                       {service.title}
                     </h3>
-                    <p className="text-sm text-black/70 dark:text-white/70">
+                    <p className="text-sm text-black/70 dark:text-white/70 text-center">
                       {service.description}
                     </p>
                   </motion.div>
@@ -903,7 +952,7 @@ export default function LandingPage() {
 
         {/* Proof points */}
         <div className="relative -mx-6 lg:-mx-8 rounded-3xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6 dark:from-slate-900/60 dark:via-slate-800/55 dark:to-slate-900/60 backdrop-blur-sm" />
 
           <section className="relative z-10 space-y-10 px-6 lg:px-8 py-12 overflow-hidden">
           <motion.div 
@@ -977,7 +1026,7 @@ export default function LandingPage() {
             >
               Why Choose Glasscode Innovations
             </motion.h2>
-            <p className="text-sm text-black/60 dark:text-white/75 leading-relaxed sm:text-base">
+            <p className="text-sm text-black/60 dark:text-white/90 leading-relaxed sm:text-base">
               We combine cutting-edge MERN stack expertise with AI automation to deliver scalable, secure, and intelligent solutions that drive business growth.
             </p>
           </motion.div>
@@ -994,7 +1043,10 @@ export default function LandingPage() {
         </div>
 
         {/* Conversation Demo in Laptop */}
-        <section id="demo" className="relative scroll-mt-20">
+        <section id="demo" className="relative scroll-mt-20 -mx-6 lg:-mx-8 -mt-8">
+          <div className="relative rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6 dark:from-slate-900/60 dark:via-slate-800/55 dark:to-slate-900/60 backdrop-blur-sm" />
+            <div className="relative z-10 px-6 lg:px-8 py-12">
           <div className="space-y-8">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
@@ -1050,7 +1102,7 @@ export default function LandingPage() {
               <h2 className={cx(
                 "text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight",
                 "text-black dark:text-white",
-                "drop-shadow-[0_4px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_4px_20px_rgba(255,255,255,0.25)]"
+                "drop-shadow-[0_4px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_4px_24px_rgba(255,255,255,0.35)]"
               )} style={{ letterSpacing: '-0.02em' }}>
                 <TypingText 
                   text="View Our Work"
@@ -1061,22 +1113,68 @@ export default function LandingPage() {
                   hideCaretAfter={true}
                 />
               </h2>
-              <p className="text-sm text-black/70 dark:text-white/70 transition-colors duration-300 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-sm text-black/70 dark:text-white/90 transition-colors duration-300 leading-relaxed max-w-2xl mx-auto">
                 Explore our portfolio of modern web applications, AI automation systems, and enterprise solutions.
                 See how we transform ideas into scalable digital products.
               </p>
+              
+              {/* View Work Button */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.9 }}
+                className="mt-6"
+              >
+                <Link href="/portfolio">
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={cx(
+                      "group relative px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-bold transition-all duration-300 rounded-full inline-flex items-center gap-2",
+                      "bg-gradient-to-r from-indigo-500/40 to-purple-500/40 hover:from-indigo-500/50 hover:to-purple-500/50",
+                      "backdrop-blur-xl border-2 border-indigo-500/50 dark:border-indigo-400/60",
+                      "text-indigo-700 dark:text-indigo-200",
+                      "shadow-[0_8px_30px_rgba(99,102,241,0.4),0_0_40px_rgba(99,102,241,0.3)]",
+                      "dark:from-indigo-500/35 dark:to-purple-500/35 dark:hover:from-indigo-500/45 dark:hover:to-purple-500/45",
+                      "dark:shadow-[0_10px_40px_rgba(99,102,241,0.6),0_0_50px_rgba(99,102,241,0.4)]",
+                      "hover:shadow-[0_12px_40px_rgba(99,102,241,0.5),0_0_50px_rgba(99,102,241,0.4)]",
+                      "dark:hover:shadow-[0_14px_50px_rgba(99,102,241,0.7),0_0_60px_rgba(99,102,241,0.5)]",
+                      "transform cursor-pointer"
+                    )}
+                  >
+                    <span>View Work</span>
+                    <motion.svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </motion.svg>
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      initial={false}
+                    />
+                  </motion.button>
+                </Link>
+              </motion.div>
             </motion.div>
 
             <LaptopMockup>
-              <MockChatShowcaseInLaptop />
+              <PortfolioShowcaseInLaptop />
             </LaptopMockup>
+          </div>
+            </div>
           </div>
         </section>
 
         {/* Featured Projects Section */}
         <section className="relative scroll-mt-20 -mx-6 lg:-mx-8">
           <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6 dark:from-[rgba(20,25,50,0.85)] dark:via-[rgba(30,25,70,0.7)] dark:to-[rgba(10,12,32,0.85)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/12 via-slate-100/8 to-white/6 dark:from-slate-900/60 dark:via-slate-800/55 dark:to-slate-900/60 backdrop-blur-sm" />
             
             <div className="relative z-10 px-6 py-12 lg:px-8 lg:py-16">
               <motion.div
@@ -1109,8 +1207,8 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {[
                   {
-                    title: 'SaaS CRM Dashboard',
-                    description: 'Modern customer relationship management platform with real-time analytics.',
+                    title: 'SaaS Products',
+                    description: 'Modern SaaS solutions with real-time analytics and scalable architecture.',
                     glow: 'from-blue-500/20 to-indigo-500/20'
                   },
                   {
@@ -1124,8 +1222,8 @@ export default function LandingPage() {
                     glow: 'from-green-500/20 to-emerald-500/20'
                   },
                   {
-                    title: 'Document Management System',
-                    description: 'Secure enterprise document management with advanced search.',
+                    title: 'Enterprise Admin Panel',
+                    description: 'Secure admin dashboards with role-based access control and audit logging.',
                     glow: 'from-orange-500/20 to-red-500/20'
                   },
                   {
@@ -1253,14 +1351,57 @@ export default function LandingPage() {
                   About Glasscode Innovations
                 </motion.h2>
 
+                {/* Tagline */}
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-lg sm:text-xl text-indigo-600 dark:text-indigo-400 font-semibold italic max-w-2xl mx-auto"
+                >
+                  Building Intelligent Solutions with Transparency and Trust.
+                </motion.p>
+
                 {/* Content */}
-                <div className="space-y-3 text-sm text-black/70 dark:text-white/80 leading-relaxed sm:text-base max-w-xl mx-auto">
-                  <p>
+                <div className="space-y-6 text-sm text-black/70 dark:text-white/80 leading-relaxed sm:text-base max-w-2xl mx-auto mt-8">
+                  {/* Introduction */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.25 }}
+                    className="text-base sm:text-lg"
+                  >
                     We are a next-generation software development company specializing in custom MERN web applications and AI automation systems.
-                  </p>
-                  <p>
-                    Our mission is to help businesses operate smarter, faster, and more efficiently using modern web technology and intelligent AI workflows. We deliver excellence, transparency, innovation, and long-term partnerships.
-                  </p>
+                  </motion.p>
+
+                  {/* Mission */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="space-y-2"
+                  >
+                    <h3 className="text-xl font-semibold text-black dark:text-white mb-2">Mission</h3>
+                    <p>
+                      Our mission is to help businesses operate smarter, faster, and more efficiently using modern web technology and intelligent AI workflows. We deliver excellence, transparency, innovation, and long-term partnerships.
+                    </p>
+                  </motion.div>
+
+                  {/* Vision */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="space-y-2"
+                  >
+                    <h3 className="text-xl font-semibold text-black dark:text-white mb-2">Vision</h3>
+                    <p>
+                      To lead the future of smart software and AI automation with clarity, trust, and cutting-edge technology.
+                    </p>
+                  </motion.div>
                 </div>
               </motion.div>
             </div>
@@ -1268,7 +1409,7 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-black/10 dark:border-white/10 dark:backdrop-blur-[16px] dark:bg-[rgba(18,18,18,0.3)] mt-16 pt-8 pb-6">
+        <footer className="border-t border-black/10 dark:border-white/10 dark:backdrop-blur-[16px] dark:bg-[rgba(18,18,18,0.3)] mt-8 pt-6 pb-4">
           <div className="max-w-7xl mx-auto px-6">
             {/* Waitlist CTA - Commented out Sign In */}
             {/* <div className="text-center mb-6 text-sm text-black/60 dark:text-[#9ca3af]">
