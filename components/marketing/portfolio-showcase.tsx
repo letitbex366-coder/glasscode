@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 
@@ -10,15 +10,15 @@ const demos = [
   {
     id: 'mern-dashboard',
     type: 'website',
-    title: 'MERN Stack Dashboard',
-    description: 'Custom admin panel with real-time analytics',
+    title: 'Market place project',
+    description: 'A platform that connects homeowners with verified architects and interior designers, making home renovation and construction simpler and more efficient.',
     image: '/images/wyn.png',
-    features: ['React Dashboard', 'Node.js Backend', 'MongoDB Database', 'Real-time Updates']
+    features: [ 'Seamless UI for both user types', 'Intuitive filtering and search', 'Responsive frontend design', 'Professional verification system', 'Location-based matching']
   },
   {
     id: 'ai-chatbot',
     type: 'chatbot',
-    title: 'AI Chatbot Assistant',
+    title: 'AI Career Coach',
     description: 'Intelligent AI-powered customer support',
     features: ['Natural Language Processing', 'Context Awareness', 'Multi-language Support', '24/7 Availability']
   },
@@ -40,13 +40,111 @@ const demos = [
   }
 ]
 
+// Demo conversation array for AI chatbot
+const demoConversation = [
+  { role: 'user' as const, text: 'How can you help me with my career?' },
+  { role: 'assistant' as const, text: 'I can help you with resume building, interview preparation, career path guidance, and personalized job recommendations. What area would you like to focus on?' },
+  { role: 'user' as const, text: 'I need help with interview preparation' },
+  { role: 'assistant' as const, text: 'Great! I can provide you with practice questions, tips for common interview scenarios, and help you prepare answers that highlight your strengths. Would you like to start with technical interviews or behavioral questions?' },
+  { role: 'user' as const, text: 'Both would be helpful' },
+  { role: 'assistant' as const, text: 'Perfect! Let\'s start with behavioral questions. Can you tell me about a time when you had to work under pressure? I\'ll help you structure a compelling answer using the STAR method.' },
+  { role: 'user' as const, text: 'That sounds great, let\'s do it!' },
+  { role: 'assistant' as const, text: 'Excellent! I\'m here to help you succeed. Let\'s begin your interview preparation journey together. You can also use me to get real-time feedback on your answers.' }
+]
+
 // AI Chatbot Demo Component
 function AIChatbotDemo() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hello! I\'m your AI assistant. How can I help you today?' }
+    { role: 'assistant', text: 'Hello! I\'m your AI Career Coach. How can I help you advance your career today?' }
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const messageIndexRef = useRef(0)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Auto-conversation effect
+  useEffect(() => {
+    const startAutoConversation = () => {
+      if (messageIndexRef.current >= demoConversation.length) {
+        // Reset conversation after a delay
+        timeoutRef.current = setTimeout(() => {
+          messageIndexRef.current = 0
+          setMessages([
+            { role: 'assistant', text: 'Hello! I\'m your AI Career Coach. How can I help you advance your career today?' }
+          ])
+          // Start again after reset
+          timeoutRef.current = setTimeout(() => {
+            startAutoConversation()
+          }, 2000)
+        }, 3000)
+        return
+      }
+
+      const currentMessage = demoConversation[messageIndexRef.current]
+      
+      if (currentMessage.role === 'user') {
+        // Show user message immediately
+        setMessages(prev => [...prev, currentMessage])
+        messageIndexRef.current++
+        
+        // After 2 seconds, show typing indicator and then AI response
+        timeoutRef.current = setTimeout(() => {
+          setIsTyping(true)
+          
+          timeoutRef.current = setTimeout(() => {
+            setIsTyping(false)
+            if (messageIndexRef.current < demoConversation.length) {
+              const aiResponse = demoConversation[messageIndexRef.current]
+              setMessages(prev => [...prev, aiResponse])
+              messageIndexRef.current++
+              
+              // Continue with next message after 2 seconds
+              timeoutRef.current = setTimeout(() => {
+                startAutoConversation()
+              }, 2000)
+            } else {
+              // Conversation ended, reset after delay
+              timeoutRef.current = setTimeout(() => {
+                messageIndexRef.current = 0
+                setMessages([
+                  { role: 'assistant', text: 'Hello! I\'m your AI Career Coach. How can I help you advance your career today?' }
+                ])
+                timeoutRef.current = setTimeout(() => {
+                  startAutoConversation()
+                }, 2000)
+              }, 3000)
+            }
+          }, 1500) // Typing duration
+        }, 2000)
+      } else {
+        // AI message - show typing first, then message
+        setIsTyping(true)
+        timeoutRef.current = setTimeout(() => {
+          setIsTyping(false)
+          setMessages(prev => [...prev, currentMessage])
+          messageIndexRef.current++
+          
+          // Continue with next message after 2 seconds
+          timeoutRef.current = setTimeout(() => {
+            startAutoConversation()
+          }, 2000)
+        }, 1500) // Typing duration
+      }
+    }
+
+    // Start the auto-conversation after initial delay
+    timeoutRef.current = setTimeout(() => {
+      startAutoConversation()
+    }, 2000)
+
+    // Cleanup on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -59,10 +157,10 @@ function AIChatbotDemo() {
     // Simulate AI response
     setTimeout(() => {
       const responses = [
-        'I can help you with web development, AI automation, and enterprise solutions. What would you like to know?',
-        'Great question! Our MERN stack solutions include custom dashboards, admin panels, and SaaS products.',
-        'We specialize in AI chatbots, workflow automation, and integration with OpenAI/LLM models.',
-        'For enterprise needs, we build secure, compliant applications with role-based access control.'
+        'I can help you with resume building, interview preparation, and career guidance. What would you like to know?',
+        'Great question! I can provide personalized career advice based on your experience and goals.',
+        'Let me help you prepare for your next interview. What type of role are you applying for?',
+        'I\'m here to support your career growth. Feel free to ask me anything about job searching or career development.'
       ]
       const randomResponse = responses[Math.floor(Math.random() * responses.length)]
       setMessages(prev => [...prev, { role: 'assistant', text: randomResponse }])
